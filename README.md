@@ -4,7 +4,7 @@ Press **Ctrl+A**, say what you need in plain language — get a shell command in
 
 Works with OpenAI-compatible APIs (OpenAI, Ollama, OpenRouter, etc.).
 
-![ai-cli TUI](screenshot.png)
+![demo](demo.gif)
 
 ## Install
 

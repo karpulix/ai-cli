@@ -9,7 +9,7 @@ Internal notes for maintaining **ai-cli** releases and the Homebrew tap.
 | Tool | Purpose |
 |------|---------|
 | Go 1.25+ | Local builds |
-| [GoReleaser v2](https://goreleaser.com/) | Release artifacts + Homebrew formula |
+| [GoReleaser v2.10+](https://goreleaser.com/) | Release artifacts + Homebrew cask |
 | `gh` CLI | Optional: create repo, watch Actions |
 | GitHub repo | `karpulix/ai-cli` |
 | Homebrew tap | [karpulix/homebrew-tools](https://github.com/karpulix/homebrew-tools) |
@@ -85,7 +85,7 @@ Artifacts: `ai-cli_<version>_<os>_<arch>.tar.gz` (`.zip` on Windows) + `checksum
 
    | Secret | Scope | Used for |
    |--------|-------|----------|
-   | `HOMEBREW_TAP_GITHUB_TOKEN` | Fine-grained PAT, **Contents: Read and write** on `homebrew-tools` | Push `ai-cli.rb` to tap |
+   | `HOMEBREW_TAP_GITHUB_TOKEN` | Fine-grained PAT, **Contents: Read and write** on `homebrew-tools` | Push `Casks/ai-cli.rb` to tap |
 
    `GITHUB_TOKEN` is provided automatically by Actions (`contents: write` in workflow).
 
@@ -111,7 +111,7 @@ git push origin v0.1.0
    - cross-compiles all targets with ldflags
    - creates GitHub Release `v0.1.0`
    - uploads archives + checksums
-   - commits `ai-cli.rb` to `karpulix/homebrew-tools`
+   - commits `Casks/ai-cli.rb` to `karpulix/homebrew-tools`
 
 ### Verify
 
@@ -124,7 +124,7 @@ Check tap:
 
 ```bash
 git clone https://github.com/karpulix/homebrew-tools /tmp/homebrew-tools
-cat /tmp/homebrew-tools/ai-cli.rb
+cat /tmp/homebrew-tools/Casks/ai-cli.rb
 ```
 
 Install from tap:
@@ -156,19 +156,20 @@ Delete the broken GitHub Release manually in the UI if needed.
 
 ## Homebrew tap config
 
-In `.goreleaser.yaml`:
+In `.goreleaser.yaml` — `homebrew_casks` (not deprecated `brews`). Cask скачивает готовый бинарник; на Linux не нужен gcc/clang.
 
-```yaml
-brews:
-  - name: ai-cli
-    repository:
-      owner: karpulix
-      name: homebrew-tools
-      branch: main
-      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+One-time migration in `karpulix/homebrew-tools`:
+
+1. Delete old `ai-cli.rb` (formula at repo root).
+2. Add `tap_migrations.json`:
+
+```json
+{
+  "ai-cli": "ai-cli"
+}
 ```
 
-User install command:
+User install command (Homebrew 5.0.6+):
 
 ```bash
 brew install karpulix/tools/ai-cli
@@ -210,7 +211,7 @@ Not required for releases — cosmetic consistency only.
 
 ```
 .github/workflows/release.yml   # CI trigger on tags
-.goreleaser.yaml                # builds, archives, brew formula
+.goreleaser.yaml                # builds, archives, homebrew cask
 internal/version/version.go     # version vars (ldflags target)
 main.go                         # --version flag
 internal/app/info.go            # version in TUI Info panel

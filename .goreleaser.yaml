@@ -41,8 +41,7 @@ changelog:
 
 homebrew_casks:
   - name: ai-cli
-    binaries:
-      - ai-cli
+    binary: ai-cli
     repository:
       owner: karpulix
       name: homebrew-tools
